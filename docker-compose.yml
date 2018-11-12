@@ -1,0 +1,62 @@
+version: "3"
+
+volumes:
+  store_data:
+  db_data:
+  rabbitmq_data:
+
+services:
+  haproxy:
+    image: haproxy:1.8
+    ports:
+      - "80:80"
+    volumes:
+      - ./haproxy.cfg:/opt/haproxy.conf:ro
+    entrypoint: haproxy -f /opt/haproxy.conf
+    depends_on:
+      - nginx
+
+  nginx:
+    image: nginx:1.15
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./nginx.cfg:/etc/nginx/nginx.conf:ro
+    entrypoint: nginx -g 'daemon off';
+    depends_on:
+      - django
+
+  django:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - store_data:/var/store
+      - ./app:/app
+    env_file:
+      - app.env
+      - db.env
+    depends_on:
+      - db
+      - rabbitmq
+
+  db:
+    image: postgres:9.5
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_INITDB_ARGS=--data-checksums --locale=en_US.utf8
+    env_file:
+      - db.env
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/data
+    env_file:
+      - rabbitmq.env
