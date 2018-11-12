@@ -8,6 +8,12 @@ RUN apt-get update && apt-get install -qy \
   libsasl2-dev \
   && apt-get clean
 
+RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
+
+RUN apt-get update && apt-get install -qy \
+  nodejs \
+  && apt-get clean
+
 RUN pip install --upgrade --no-cache-dir pip
 
 RUN mkdir -p /app
