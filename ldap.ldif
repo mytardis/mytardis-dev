@@ -1,0 +1,13 @@
+dn: uid=user1,ou=people,dc=mytardis,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: John Smith
+sn: Smith
+givenName: John
+uid: user1
+ou: people
+mail: john.smith@mytardis.org
+userPassword: test1
+
