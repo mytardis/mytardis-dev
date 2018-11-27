@@ -32,6 +32,7 @@ RUN sed -i 's/-e git+/git+/g' requirements-base.txt
 
 RUN pip install -r requirements.txt
 RUN pip install -r requirements-postgres.txt
+RUN pip install -r tardis/apps/mydata/requirements.txt
 
 RUN npm install
 
