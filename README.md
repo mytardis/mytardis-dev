@@ -4,11 +4,16 @@ Run MyTardis for development in Docker.
 Get MyTardis up and running at http://localhost/:
 ```
 git clone git@github.com:dyakhnov/mytardis-dev.git
-git clone git@github.com:dyakhnov/mytardis.git app
+git clone git@github.com:mytardis/mytardis.git app
+git clone git@github.com:wettenhj/mytardis-app-mydata.git app/tardis/apps/mydata
 docker-compose up -d
-docker-compose exec django npm install
+```
+
+Create database and admin user:
+```
 docker-compose exec django python manage.py migrate
 docker-compose exec django python manage.py createsuperuser
+docker-compose exec django python mytardis.py migrate mydata
 ```
 
 Once you are done:
