@@ -4,8 +4,12 @@ Run MyTardis for development in Docker.
 Get MyTardis up and running at http://localhost/:
 ```
 git clone git@github.com:dyakhnov/mytardis-dev.git
+
+cd mytardis-dev
+
 git clone git@github.com:mytardis/mytardis.git app
 git clone git@github.com:wettenhj/mytardis-app-mydata.git app/tardis/apps/mydata
+
 docker-compose up -d
 ```
 
