@@ -26,6 +26,7 @@ RUN mkdir -p /app
 WORKDIR /app
 
 COPY ./app ./
+COPY ./settings.py ./tardis
 
 # don't install Git repos in 'edit' mode
 RUN sed -i 's/-e git+/git+/g' requirements-base.txt
