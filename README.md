@@ -8,7 +8,7 @@ git clone git@github.com:dyakhnov/mytardis-dev.git
 cd mytardis-dev
 
 git clone git@github.com:mytardis/mytardis.git app
-git clone git@github.com:wettenhj/mytardis-app-mydata.git app/tardis/apps/mydata
+git clone git@github.com:mytardis/mytardis-app-mydata.git app/tardis/apps/mydata
 
 docker-compose up -d
 ```
