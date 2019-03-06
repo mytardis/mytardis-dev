@@ -16,6 +16,7 @@ docker-compose up -d
 Create database and admin user:
 ```
 docker-compose exec django python manage.py migrate
+docker-compose exec django python manage.py createcachetable celery_lock_cache
 docker-compose exec django python manage.py createsuperuser
 docker-compose exec django python mytardis.py migrate mydata
 docker-compose exec django python mytardis.py loaddata tardis/apps/mydata/fixtures/default_experiment_schema.json
