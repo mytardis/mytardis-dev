@@ -18,6 +18,7 @@ Create database and admin user:
 docker-compose exec django python manage.py migrate
 docker-compose exec django python manage.py createcachetable default_cache
 docker-compose exec django python manage.py createcachetable celery_lock_cache
+docker-compose exec django python manage.py collectstatic
 docker-compose exec django python manage.py createsuperuser
 ```
 
