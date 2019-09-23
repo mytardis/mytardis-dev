@@ -32,3 +32,19 @@ Once you are done:
 ```
 docker-compose down
 ```
+
+Don't forget to remove volumes (if you want tear down stack completely):
+```
+docker-compose down -v
+```
+
+To rebuild images for the stack:
+```
+docker-compose build
+```
+
+In case you want to fully cleanup Docker system:
+```
+docker system prune -a
+docker volume rm $(docker volume ls -f dangling=true -q)
+```

@@ -36,6 +36,7 @@ RUN pip install -r requirements-postgres.txt
 RUN pip install -r tardis/apps/mydata/requirements.txt
 
 RUN npm install
+RUN npm run-script build
 
 # RUN python manage.py migrate --noinput
 # RUN python manage.py collectstatic --noinput
