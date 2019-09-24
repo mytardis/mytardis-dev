@@ -2,7 +2,7 @@
 
 ### Get MyTardis up and running at http://localhost/
 ```
-git clone --recursive git@github.com:mytardis/mytardis-dev.git
+git clone --recurse-submodules git@github.com:mytardis/mytardis-dev.git
 cd mytardis-dev
 docker-compose up -d
 ```
