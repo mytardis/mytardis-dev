@@ -116,5 +116,5 @@ dmypy.json
 # PyCharm
 .idea/
 
-# MyTardis
-app/
+# Submodules
+submodules/

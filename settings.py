@@ -44,7 +44,7 @@ AUTH_PROVIDERS = (
 )
 
 INSTALLED_APPS += ('tardis.apps.mydata',)
-INSTALLED_APPS += ('haystack',)
+# INSTALLED_APPS += ('haystack',)
 
 CACHES = {
     'default': {
