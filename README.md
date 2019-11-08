@@ -31,6 +31,12 @@ docker-compose exec django python mytardis.py loaddata tardis/apps/mydata/fixtur
 
 Only after performing all the steps above you will be able to access MyTardis at localhost.
 
+### Testing
+```
+docker-compose exec django pylint --rcfile .pylintrc tardis
+docker-compose exec django python test.py test --settings=tardis.test_settings
+```
+
 ### Shutdown development stack
 ```
 docker-compose down
