@@ -9,9 +9,8 @@ docker-compose up -d
 
 Because we are mapping submodules folder with running container, we have to:
 ```
-cd submodules/mytardis
-npm install
-npm run-script build
+docker-compose exec django npm install
+docker-compose exec django npm run-script build
 ```
 
 Create database and admin user:
