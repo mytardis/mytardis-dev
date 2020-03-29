@@ -4,6 +4,43 @@ import logging  # pylint: disable=wrong-import-order
 
 DEBUG = True
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'console': {
+            'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+        },
+        'django': {
+            'format': 'django: %(message)s',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'console',
+        },
+        'syslog': {
+            'class': 'logging.handlers.SysLogHandler',
+            'level': 'ERROR',
+            'facility': 'user',
+            'formatter': 'django'
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console', 'syslog'],
+            'level': 'ERROR'
+        },
+        # Redefining the logger for the `django` module
+        # prevents invoking the `AdminEmailHandler`
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO'
+        }
+    }
+}
+
 SYSTEM_LOG_LEVEL = logging.DEBUG
 MODULE_LOG_LEVEL = logging.DEBUG
 
@@ -44,7 +81,6 @@ AUTH_PROVIDERS = (
 )
 
 INSTALLED_APPS += ('tardis.apps.mydata',)
-# INSTALLED_APPS += ('haystack',)
 
 CACHES = {
     'default': {
@@ -58,3 +94,27 @@ TEMPLATES[0]['OPTIONS'].update({
         'django.template.loaders.app_directories.Loader',
     ],
 })
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+CELERY_RESULT_BACKEND = 'amqp'
+BROKER_URL = 'amqp://%(user)s:%(password)s@%(host)s:%(port)s/%(vhost)s' % {
+    'host': 'rabbitmq',
+    'port': 5672,
+    'user': 'user',
+    'password': 'password',
+    'vhost': '/'
+}
+
+INSTALLED_APPS += ('django_elasticsearch_dsl', 'tardis.apps.search')
+SINGLE_SEARCH_ENABLED = True
+MIN_CUTOFF_SCORE = 5.0
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'elasticsearch:9200'
+    }
+}
+ELASTICSEARCH_DSL_INDEX_SETTINGS = {
+    'number_of_shards': 1,
+    'number_of_replicas': 0
+}
