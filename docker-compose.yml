@@ -41,6 +41,7 @@ services:
     depends_on:
       - db
       - rabbitmq
+      - elasticsearch
   db:
     image: 'postgres:9.6'
     ports:
@@ -70,7 +71,7 @@ services:
     env_file:
       - ldap.env
   elasticsearch:
-    image: 'docker.elastic.co/elasticsearch/elasticsearch:6.5.1'
+    image: 'docker.elastic.co/elasticsearch/elasticsearch:7.1.1'
     ports:
       - '9200:9200'
       - '9300:9300'
@@ -86,10 +87,8 @@ services:
       nofile:
         soft: 65536
         hard: 65536
-    networks:
-      - elk
   kibana:
-    image: 'docker.elastic.co/kibana/kibana:6.5.1'
+    image: 'docker.elastic.co/kibana/kibana:7.1.1'
     ports:
       - '5601:5601'
     environment:
@@ -98,7 +97,3 @@ services:
       ELASTICSEARCH_URL: 'http://elasticsearch:9200'
     depends_on:
       - elasticsearch
-    networks:
-      - elk
-networks:
-  elk: null
