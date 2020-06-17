@@ -43,4 +43,4 @@ RUN npm run-script build
 # RUN python manage.py collectstatic --noinput
 
 # CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
-CMD ["gunicorn", "--bind", ":8000", "--config", "gunicorn_settings.py", "--reload", "wsgi:application"]
+CMD ["gunicorn", "--bind", ":8000", "--workers", "1", "--worker-class", "gevent", "--reload", "wsgi:application"]
