@@ -8,32 +8,61 @@ volumes:
   es_data: null
 services:
   haproxy:
-    image: 'haproxy:1.8'
+    image: haproxy:1.8
     ports:
-      - '80:80'
+      - 80:80
     volumes:
-      - './haproxy.cfg:/opt/haproxy.conf:ro'
+      - ./haproxy.cfg:/opt/haproxy.conf:ro
     entrypoint: haproxy -f /opt/haproxy.conf
     depends_on:
       - nginx
   nginx:
-    image: 'nginx:1.15'
+    image: nginx:1.15
     ports:
-      - '8080:8080'
+      - 8080:8080
     volumes:
-      - './nginx.cfg:/etc/nginx/nginx.conf:ro'
+      - ./nginx.cfg:/etc/nginx/nginx.conf:ro
     entrypoint: nginx -g 'daemon off';
     depends_on:
       - django
   django:
     build: .
+    command:
+      - gunicorn
+      - wsgi:application
+      - --bind=0.0.0.0:8000
+      - --workers=1
+      - --worker-class=gevent
+      - --reload
+      - --log-level=debug
     ports:
-      - '8000:8000'
+      - 8000:8000
     volumes:
-      - 'store_data:/var/store'
-      - './submodules/mytardis:/app'
-      - './submodules/mytardis-app-mydata:/app/tardis/apps/mydata'
-      - './settings.py:/app/tardis/settings.py'
+      - store_data:/var/store
+      - ./submodules/mytardis:/app
+      - ./submodules/mytardis-app-mydata:/app/tardis/apps/mydata
+      - ./settings.py:/app/tardis/settings.py
+    env_file:
+      - app.env
+      - db.env
+      - ldap.env
+    depends_on:
+      - db
+      - rabbitmq
+      - elasticsearch
+  celery-worker:
+    build: .
+    command:
+      - celery
+      - worker
+      - --app=tardis.celery.tardis_app
+      - --concurrency=1
+      - --queues=celery,default
+      - --loglevel=debug
+    volumes:
+      - store_data:/var/store
+      - ./submodules/mytardis:/app
+      - ./settings.py:/app/tardis/settings.py
     env_file:
       - app.env
       - db.env
@@ -43,41 +72,41 @@ services:
       - rabbitmq
       - elasticsearch
   db:
-    image: 'postgres:9.6'
+    image: postgres:9.6
     ports:
-      - '5432:5432'
+      - 5432:5432
     volumes:
-      - 'db_data:/var/lib/postgresql/data'
+      - db_data:/var/lib/postgresql/data
     environment:
       - PGDATA=/var/lib/postgresql/data/pgdata
       - POSTGRES_INITDB_ARGS=--data-checksums --locale=en_US.utf8
     env_file:
       - db.env
   rabbitmq:
-    image: 'rabbitmq:3-management'
+    image: rabbitmq:3-management
     ports:
-      - '15672:15672'
+      - 15672:15672
     volumes:
-      - 'rabbitmq_data:/data'
+      - rabbitmq_data:/data
     env_file:
       - rabbitmq.env
   ldap:
-    image: 'osixia/openldap:1.2.2'
+    image: osixia/openldap:1.2.2
     ports:
-      - '389:389'
+      - 389:389
     volumes:
-      - 'ldap_data:/var/lib/ldap'
-      - 'ldap_config:/etc/ldap/slapd.d'
+      - ldap_data:/var/lib/ldap
+      - ldap_config:/etc/ldap/slapd.d
     env_file:
       - ldap.env
   elasticsearch:
-    image: 'docker.elastic.co/elasticsearch/elasticsearch:7.1.1'
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.1.1
     ports:
-      - '9200:9200'
-      - '9300:9300'
+      - 9200:9200
+      - 9300:9300
     volumes:
-      - 'es_data:/usr/share/elasticsearch/data'
-      - './elastic.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro'
+      - es_data:/usr/share/elasticsearch/data
+      - ./elastic.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
     env_file:
       - elastic.env
     ulimits:
@@ -88,12 +117,12 @@ services:
         soft: 65536
         hard: 65536
   kibana:
-    image: 'docker.elastic.co/kibana/kibana:7.1.1'
+    image: docker.elastic.co/kibana/kibana:7.1.1
     ports:
-      - '5601:5601'
+      - 5601:5601
     environment:
       SERVER_NAME: localhost
       SERVER_HOST: 0.0.0.0
-      ELASTICSEARCH_URL: 'http://elasticsearch:9200'
+      ELASTICSEARCH_URL: http://elasticsearch:9200
     depends_on:
       - elasticsearch
