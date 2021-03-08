@@ -41,7 +41,7 @@ docker-compose exec django python test.py test --settings=tardis.test_settings
 docker-compose down
 ```
 
-Don't forget to remove volumes (if you want tear down stack completely):
+If you want tear down stack completely, don't forget to remove volumes:
 ```
 docker-compose down -v
 ```
@@ -51,8 +51,20 @@ To rebuild images for the stack:
 docker-compose build
 ```
 
-In case you want to fully cleanup Docker system:
+In case you want to cleanup Docker system completely:
 ```
 docker system prune -a
 docker volume rm $(docker volume ls -f dangling=true -q)
+```
+
+### Available services and ports
+```
+HAProxy          http://localhost
+Nginx            http://localhost:8080
+Gunicorn/Django  http://localhost:8000
+RabbitMQ         http://localhost:15672
+Elasticsearch    http://localhost:9200
+Kibana           http://localhost:5601
+LDAP             localhost:389
+PostgreSQL       localhost:5432
 ```
