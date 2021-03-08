@@ -101,7 +101,7 @@ TEMPLATES[0]['OPTIONS'].update({
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-CELERY_RESULT_BACKEND = 'amqp'
+RESULT_BACKEND = 'rpc://'
 BROKER_URL = 'amqp://%(user)s:%(password)s@%(host)s:%(port)s/%(vhost)s' % {
     'host': 'rabbitmq',
     'port': 5672,
@@ -122,3 +122,4 @@ ELASTICSEARCH_DSL_INDEX_SETTINGS = {
     'number_of_shards': 1,
     'number_of_replicas': 0
 }
+#ELASTICSEARCH_DSL_SIGNAL_PROCESSOR = 'tardis.apps.search.signals.CelerySignalProcessor'
