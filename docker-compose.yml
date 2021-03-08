@@ -34,7 +34,8 @@ services:
       - --workers=1
       - --worker-class=gevent
       - --reload
-      - --log-level=debug
+      - --log-level=DEBUG
+      - --preload
     ports:
       - 8000:8000
     volumes:
@@ -54,11 +55,11 @@ services:
     build: .
     command:
       - celery
-      - worker
       - --app=tardis.celery.tardis_app
+      - worker
       - --concurrency=1
       - --queues=celery,default
-      - --loglevel=debug
+      - --loglevel=DEBUG
     volumes:
       - store_data:/var/store
       - ./submodules/mytardis:/app
