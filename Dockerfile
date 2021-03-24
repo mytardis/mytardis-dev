@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -qy \
 		nodejs \
 	&& apt-get clean
 
-RUN pip install --upgrade --no-cache-dir pip
+RUN pip install --upgrade pip
 
 RUN mkdir -p /app
 WORKDIR /app
