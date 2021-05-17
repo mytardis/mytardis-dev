@@ -17,12 +17,11 @@ services:
     depends_on:
       - nginx
   nginx:
-    image: nginx:1.15
+    image: nginx:latest
     ports:
       - 8080:8080
     volumes:
       - ./nginx.cfg:/etc/nginx/nginx.conf:ro
-    entrypoint: nginx -g 'daemon off';
     depends_on:
       - django
   django:
