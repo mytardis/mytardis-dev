@@ -1,4 +1,7 @@
 version: '3.3'
+networks:
+  default:
+    driver: bridge
 volumes:
   store_data: null
   db_data: null
@@ -6,6 +9,7 @@ volumes:
   ldap_data: null
   ldap_config: null
   es_data: null
+  scp_data: null
 services:
   haproxy:
     image: haproxy:1.8
@@ -17,11 +21,12 @@ services:
     depends_on:
       - nginx
   nginx:
-    image: nginx:latest
+    image: 'nginx:latest'
     ports:
       - 8080:8080
     volumes:
       - ./nginx.cfg:/etc/nginx/nginx.conf:ro
+      - ./submodules/mytardis/static:/static
     depends_on:
       - django
   django:
@@ -32,15 +37,18 @@ services:
       - --bind=0.0.0.0:8000
       - --workers=1
       - --worker-class=gevent
-      - --reload
+#      - --preload
       - --log-level=DEBUG
-      - --preload
+      - --log-file=-
+      - --access-logfile=-
+      - --error-logfile=-
     ports:
       - 8000:8000
     volumes:
       - store_data:/var/store
       - ./submodules/mytardis:/app
       - ./submodules/mytardis-app-mydata:/app/tardis/apps/mydata
+      - ../Monash_OpenID_Login/monash_openid_login:/app/tardis/apps/monash_openid_login
       - ./settings.py:/app/tardis/settings.py
     env_file:
       - app.env
@@ -70,7 +78,40 @@ services:
     depends_on:
       - db
       - rabbitmq
-      - elasticsearch
+  celery:
+    build: .
+    command:
+      - celery
+      - --app=tardis.celery.tardis_app
+      - worker
+      - --queues=celery,default
+      - --concurrency=1
+      - --loglevel=DEBUG
+    volumes:
+      - store_data:/var/store
+      - ./submodules/mytardis:/app
+      - ./submodules/mytardis-app-mydata:/app/tardis/apps/mydata
+      - ./settings.py:/app/tardis/settings.py
+    env_file:
+      - app.env
+      - db.env
+      - ldap.env
+    depends_on:
+      - db
+      - rabbitmq
+  scp:
+    image: mytardis/k8s-scp:hpn
+    ports:
+      - '9022:22'
+    expose:
+      - '9022'
+    volumes:
+      - store_data:/var/store
+      - scp_data:/data/scp
+      - ./scp.keys:/config/auth_keys
+      - ./scp.config:/etc/ssh/sshd_config
+    environment:
+      - AUTHORIZED_KEYS_SOURCE_FILE=/config/auth_keys
   db:
     image: postgres:9.6
     ports:
@@ -100,7 +141,7 @@ services:
     env_file:
       - ldap.env
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.1.1
+    image: 'docker.elastic.co/elasticsearch/elasticsearch:7.1.1'
     ports:
       - 9200:9200
       - 9300:9300
@@ -117,7 +158,7 @@ services:
         soft: 65536
         hard: 65536
   kibana:
-    image: docker.elastic.co/kibana/kibana:7.1.1
+    image: 'docker.elastic.co/kibana/kibana:7.1.1'
     ports:
       - 5601:5601
     environment:
@@ -126,3 +167,10 @@ services:
       ELASTICSEARCH_URL: http://elasticsearch:9200
     depends_on:
       - elasticsearch
+  sftp:
+    image: atmoz/sftp
+    volumes:
+        - ./upload:/home/foo/upload
+    ports:
+        - '2222:22'
+    command: foo:pass:1001

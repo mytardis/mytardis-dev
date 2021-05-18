@@ -22,7 +22,12 @@ RUN apt-get update && apt-get install -qy \
 
 RUN pip install --upgrade pip
 
-RUN mkdir -p /app
+
+# Create runtime user
+RUN mkdir -p /app && \
+    groupadd -r -g 1001 mytardis && \
+    useradd -r -m -u 1001 -g 1001 mytardis
+
 WORKDIR /app
 
 COPY submodules/mytardis/ ./
@@ -36,11 +41,14 @@ RUN pip install -r requirements.txt
 RUN pip install -r requirements-postgres.txt
 RUN pip install -r tardis/apps/mydata/requirements.txt
 
-RUN npm install
+RUN npm install -g
 RUN npm run-script build
+
+RUN chown -R mytardis:mytardis /app
+USER mytardis
+EXPOSE 8000
 
 # RUN python manage.py migrate --noinput
 # RUN python manage.py collectstatic --noinput
 
-# CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
-CMD ["gunicorn", "--bind", ":8000", "--workers", "1", "--worker-class", "gevent", "--reload", "wsgi:application"]
+CMD ["gunicorn", "--bind", ":8000", "--workers", "1", "--worker-class", "gevent", "--reload", "--log-level", "DEBUG", "wsgi:application"]
