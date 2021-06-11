@@ -14,21 +14,20 @@ services:
   haproxy:
     image: haproxy:1.8
     ports:
-      - 80:80
+      - '80:80'
     volumes:
       - ./haproxy.cfg:/opt/haproxy.conf:ro
     entrypoint: haproxy -f /opt/haproxy.conf
-    depends_on:
-      - nginx
   nginx:
-    image: nginx:latest
+    build:
+      context: .
+      dockerfile: nginx.docker
     ports:
-      - 8080:8080
+      - '81:81'
     volumes:
       - ./nginx.cfg:/etc/nginx/nginx.conf:ro
       - ./submodules/mytardis/static:/static
-    depends_on:
-      - django
+      - store_data:/var/store
   django:
     build: .
     command:
@@ -37,13 +36,13 @@ services:
       - --bind=0.0.0.0:8000
       - --workers=1
       - --worker-class=gevent
-#      - --preload
+      - --preload
       - --log-level=DEBUG
       - --log-file=-
       - --access-logfile=-
       - --error-logfile=-
     ports:
-      - 8000:8000
+      - '8000:8000'
     volumes:
       - store_data:/var/store
       - ./submodules/mytardis:/app
@@ -54,10 +53,6 @@ services:
       - app.env
       - db.env
       - ldap.env
-    depends_on:
-      - db
-      - rabbitmq
-      - elasticsearch
   celery:
     build: .
     command:
@@ -76,13 +71,10 @@ services:
       - app.env
       - db.env
       - ldap.env
-    depends_on:
-      - db
-      - rabbitmq
   scp:
     image: mytardis/k8s-scp:hpn
     ports:
-      - 9022:22
+      - '9022:22'
     expose:
       - 9022
     volumes:
@@ -95,7 +87,7 @@ services:
   db:
     image: postgres:9.6
     ports:
-      - 5432:5432
+      - '5432:5432'
     volumes:
       - db_data:/var/lib/postgresql/data
     environment:
@@ -106,7 +98,7 @@ services:
   rabbitmq:
     image: rabbitmq:3-management
     ports:
-      - 15672:15672
+      - '15672:15672'
     volumes:
       - rabbitmq_data:/data
     env_file:
@@ -114,7 +106,7 @@ services:
   ldap:
     image: osixia/openldap:1.2.2
     ports:
-      - 389:389
+      - '389:389'
     volumes:
       - ldap_data:/var/lib/ldap
       - ldap_config:/etc/ldap/slapd.d
@@ -123,8 +115,8 @@ services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.12.1
     ports:
-      - 9200:9200
-      - 9300:9300
+      - '9200:9200'
+      - '9300:9300'
     volumes:
       - es_data:/usr/share/elasticsearch/data
       - ./elastic.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
@@ -140,17 +132,15 @@ services:
   kibana:
     image: docker.elastic.co/kibana/kibana:7.12.1
     ports:
-      - 5601:5601
+      - '5601:5601'
     environment:
       SERVER_NAME: localhost
       SERVER_HOST: 0.0.0.0
       ELASTICSEARCH_URL: http://elasticsearch:9200
-    depends_on:
-      - elasticsearch
   sftp:
     image: atmoz/sftp
     volumes:
         - ./upload:/home/foo/upload
     ports:
-        - 2222:22
+        - '2222:22'
     command: foo:pass:1001

@@ -60,7 +60,7 @@ docker volume rm $(docker volume ls -f dangling=true -q)
 ### Available services and ports
 ```
 HAProxy          http://localhost
-Nginx            http://localhost:8080
+Nginx            http://localhost:81
 Gunicorn/Django  http://localhost:8000
 RabbitMQ         http://localhost:15672
 Elasticsearch    http://localhost:9200

@@ -1,0 +1,4 @@
+FROM nginx:stable-alpine
+
+RUN addgroup -g 1001 -S mytardis && \
+    adduser nginx mytardis
