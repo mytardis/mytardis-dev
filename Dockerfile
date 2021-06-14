@@ -45,6 +45,10 @@ RUN npm install -g
 RUN npm run-script build
 
 RUN chown -R mytardis:mytardis /app
+
+RUN mkdir -p /var/store
+RUN chown -R mytardis:mytardis /var/store
+
 USER mytardis
 EXPOSE 8000
 
